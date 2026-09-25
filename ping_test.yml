@@ -1,0 +1,12 @@
+---
+- name: Test Linux Connectivity
+  hosts: linux
+  gather_facts: false
+
+  tasks:
+    - name: Test Ansible connectivity
+      ansible.builtin.ping:
+
+    - name: Display success message
+      ansible.builtin.debug:
+        msg: "Ansible successfully reached {{ inventory_hostname }}"
