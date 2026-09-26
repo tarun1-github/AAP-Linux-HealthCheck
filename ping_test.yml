@@ -33,3 +33,16 @@
     - name: Show success
       ansible.builtin.debug:
         msg: "Linux health check completed successfully"
+
+
+    - name: Show root filesystem
+      ansible.builtin.debug:
+        msg: >-
+          Root filesystem:
+          {{
+            ansible_mounts
+            | selectattr('mount', 'equalto', '/')
+            | map(attribute='size_available')
+            | first
+            | int // (1024 * 1024 * 1024)
+          }} GB free   
