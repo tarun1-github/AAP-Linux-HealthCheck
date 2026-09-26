@@ -22,29 +22,14 @@
       ansible.builtin.debug:
         msg: "CPU cores: {{ ansible_facts.processor_vcpus }}"
 
-    - name: Check uptime
-      ansible.builtin.command: uptime
-      register: uptime_result
-      changed_when: false
-
     - name: Show uptime
       ansible.builtin.debug:
-        msg: "{{ uptime_result.stdout }}"
-
-    - name: Check disk
-      ansible.builtin.command: df -h /
-      register: disk_result
-      changed_when: false
-
-    - name: Show disk
-      ansible.builtin.debug:
-        msg: "{{ disk_result.stdout }}"
-
-    - name: Check memory
-      ansible.builtin.command: free -m
-      register: memory_result
-      changed_when: false
+        msg: "Uptime: {{ ansible_uptime_seconds }} seconds"
 
     - name: Show memory
       ansible.builtin.debug:
-        msg: "{{ memory_result.stdout }}"
+        msg: "Memory: {{ ansible_memtotal_mb }} MB total, {{ ansible_memfree_mb }} MB free"
+
+    - name: Show success
+      ansible.builtin.debug:
+        msg: "Linux health check completed successfully"
