@@ -30,19 +30,39 @@
       ansible.builtin.debug:
         msg: "Memory: {{ ansible_memtotal_mb }} MB total, {{ ansible_memfree_mb }} MB free"
 
-    - name: Show success
-      ansible.builtin.debug:
-        msg: "Linux health check completed successfully"
+    - name: Check root filesystem
+      ansible.builtin.command:
+        argv:
+          - python3
+          - -c
+          - |
+            import os
 
+            stat = os.statvfs("/")
+
+            total = stat.f_blocks * stat.f_frsize
+            free = stat.f_bavail * stat.f_frsize
+            used = total - (stat.f_bfree * stat.f_frsize)
+
+            total_gb = total / (1024 ** 3)
+            free_gb = free / (1024 ** 3)
+            used_gb = used / (1024 ** 3)
+            used_pct = (used / total * 100) if total else 0
+
+            print(
+                f"Root filesystem: "
+                f"Total={total_gb:.2f} GB, "
+                f"Used={used_gb:.2f} GB, "
+                f"Free={free_gb:.2f} GB, "
+                f"Used%={used_pct:.1f}%"
+            )
+      register: root_fs
+      changed_when: false
 
     - name: Show root filesystem
       ansible.builtin.debug:
-        msg: >-
-          Root filesystem:
-          {{
-            ansible_mounts
-            | selectattr('mount', 'equalto', '/')
-            | map(attribute='size_available')
-            | first
-            | int // (1024 * 1024 * 1024)
-          }} GB free   
+        msg: "{{ root_fs.stdout }}"
+
+    - name: Show success
+      ansible.builtin.debug:
+        msg: "Linux health check completed successfully"
