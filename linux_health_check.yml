@@ -1,0 +1,53 @@
+---
+- name: Linux Health Check - Read Only
+  hosts: linux_servers
+  gather_facts: true
+  become: false
+
+  tasks:
+    - name: Verify Ansible connectivity
+      ansible.builtin.ping:
+
+    - name: Get hostname
+      ansible.builtin.command: hostname
+      register: hostname_result
+      changed_when: false
+
+    - name: Get uptime
+      ansible.builtin.command: uptime
+      register: uptime_result
+      changed_when: false
+
+    - name: Check root filesystem usage
+      ansible.builtin.command: df -h /
+      register: disk_result
+      changed_when: false
+
+    - name: Check memory usage
+      ansible.builtin.command: free -m
+      register: memory_result
+      changed_when: false
+
+    - name: Gather service facts
+      ansible.builtin.service_facts:
+
+    - name: Check SSH service state
+      ansible.builtin.debug:
+        msg: >-
+          SSH service state:
+          {{ ansible_facts.services['ssh.service'].state
+             if 'ssh.service' in ansible_facts.services
+             else (ansible_facts.services['sshd.service'].state
+                   if 'sshd.service' in ansible_facts.services
+                   else 'ssh/sshd service not found') }}
+
+    - name: Display health-check summary
+      ansible.builtin.debug:
+        msg:
+          - "Hostname: {{ hostname_result.stdout }}"
+          - "OS: {{ ansible_facts.distribution }} {{ ansible_facts.distribution_version }}"
+          - "Kernel: {{ ansible_facts.kernel }}"
+          - "CPU cores: {{ ansible_facts.processor_vcpus }}"
+          - "Uptime: {{ uptime_result.stdout }}"
+          - "Disk: {{ disk_result.stdout_lines | join(' | ') }}"
+          - "Memory: {{ memory_result.stdout_lines | join(' | ') }}"
