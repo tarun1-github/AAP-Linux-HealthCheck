@@ -1,12 +1,18 @@
 ---
-- name: Test Linux Connectivity
-  hosts: linux
-  gather_facts: false
+- name: Test AAP Execution
+  hosts: localhost
+  connection: local
+  gather_facts: true
 
   tasks:
-    - name: Test Ansible connectivity
-      ansible.builtin.ping:
-
-    - name: Display success message
+    - name: Show hostname
       ansible.builtin.debug:
-        msg: "Ansible successfully reached {{ inventory_hostname }}"
+        msg: "AAP execution environment hostname: {{ ansible_facts.hostname }}"
+
+    - name: Show operating system
+      ansible.builtin.debug:
+        msg: "OS: {{ ansible_facts.distribution }} {{ ansible_facts.distribution_version }}"
+
+    - name: Show success
+      ansible.builtin.debug:
+        msg: "AAP Ansible job executed successfully!"
