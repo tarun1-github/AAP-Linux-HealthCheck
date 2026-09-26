@@ -1,18 +1,50 @@
 ---
-- name: Test AAP Execution
+- name: Linux Health Check
   hosts: localhost
   connection: local
   gather_facts: true
 
   tasks:
+
     - name: Show hostname
       ansible.builtin.debug:
-        msg: "AAP execution environment hostname: {{ ansible_facts.hostname }}"
+        msg: "Hostname: {{ ansible_facts.hostname }}"
 
-    - name: Show operating system
+    - name: Show OS
       ansible.builtin.debug:
         msg: "OS: {{ ansible_facts.distribution }} {{ ansible_facts.distribution_version }}"
 
-    - name: Show success
+    - name: Show kernel
       ansible.builtin.debug:
-        msg: "AAP Ansible job executed successfully!"
+        msg: "Kernel: {{ ansible_facts.kernel }}"
+
+    - name: Show CPU
+      ansible.builtin.debug:
+        msg: "CPU cores: {{ ansible_facts.processor_vcpus }}"
+
+    - name: Check uptime
+      ansible.builtin.command: uptime
+      register: uptime_result
+      changed_when: false
+
+    - name: Show uptime
+      ansible.builtin.debug:
+        msg: "{{ uptime_result.stdout }}"
+
+    - name: Check disk
+      ansible.builtin.command: df -h /
+      register: disk_result
+      changed_when: false
+
+    - name: Show disk
+      ansible.builtin.debug:
+        msg: "{{ disk_result.stdout }}"
+
+    - name: Check memory
+      ansible.builtin.command: free -m
+      register: memory_result
+      changed_when: false
+
+    - name: Show memory
+      ansible.builtin.debug:
+        msg: "{{ memory_result.stdout }}"
