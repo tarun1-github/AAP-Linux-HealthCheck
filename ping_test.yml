@@ -1,7 +1,6 @@
 ---
 - name: Linux Health Check
-  hosts: localhost
-  connection: local
+  hosts: linux
   gather_facts: true
 
   tasks:
